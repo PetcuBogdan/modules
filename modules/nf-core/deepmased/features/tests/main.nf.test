@@ -1,0 +1,39 @@
+nextflow_process {
+
+    name "Test Process DEEPMASED_FEATURES"
+    script "../main.nf"
+    process "DEEPMASED_FEATURES"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "deepmased"
+    tag "deepmased_features"
+
+    test("features_single_sample") {
+
+        config "./nextflow.config"
+
+        when {
+            process:
+            """
+            input[0] = [
+                "sample1",
+                "MEGAHIT-sample1",
+                file("${params.modules_testdata_base_path}/metagenomics/deepmased/sample.bam", checkIfExists: true),
+                file("${params.modules_testdata_base_path}/metagenomics/deepmased/sample.bam.bai", checkIfExists: true),
+                file("${params.modules_testdata_base_path}/metagenomics/deepmased/sample.fa", checkIfExists: true)
+            ]
+            """
+        }
+
+        then {
+            assert process.success
+
+            assert snapshot(
+                process.out[0].collect { it[1].name },   // sample_feature_file_paths.tsv
+                process.out[1].collect { it[1].name },   // basename_feats.tsv
+                process.out.versions
+            ).match()
+        }
+    }
+}

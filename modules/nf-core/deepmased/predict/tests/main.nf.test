@@ -1,0 +1,36 @@
+nextflow_process {
+
+    name "Test Process DEEPMASED_PREDICT"
+    script "../main.nf"
+    process "DEEPMASED_PREDICT"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "deepmased"
+    tag "deepmased_predict"
+
+    test("predict_single_sample") {
+
+        config "./nextflow.config"
+
+        when {
+            process:
+            """
+            input[0] = [
+                "sample1",
+                file("${params.modules_testdata_base_path}/metagenomics/deepmased/sample_feature_file_paths.tsv", checkIfExists: true),
+                file("${params.modules_testdata_base_path}/metagenomics/deepmased/sample_feats.tsv", checkIfExists: true)
+            ]
+            """
+        }
+
+        then {
+            assert process.success
+
+            assert snapshot(
+                process.out[0].collect { it[1].name },
+                process.out.versions
+            ).match()
+        }
+    }
+}

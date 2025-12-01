@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "deepmased_features"
+description: |
+  Extract features from BAM and FASTA files for misassembly detection using DeepMAsED.
+  This process analyzes read mapping patterns, coverage, and assembly characteristics
+  to generate feature vectors for downstream machine learning prediction.
+
+keywords:
+  - metagenomics
+  - assembly
+  - quality control
+  - feature extraction
+  - deep learning
+  - misassembly
+
+tools:
+  - deepmased:
+      description: |
+        Deep learning for Metagenome Assembly Error Detection. This module runs the
+        'features' subcommand which extracts features from aligned reads (BAM) and
+        assembly (FASTA) files. Features include coverage patterns, read mapping quality,
+        mate pair orientations, and assembly statistics.
+      homepage: https://github.com/leylabmpi/DeepMAsED
+      documentation: https://github.com/leylabmpi/DeepMAsED/blob/master/README.md
+      tool_dev_url: https://github.com/leylabmpi/DeepMAsED
+      doi: "10.1093/bioinformatics/btaa124"
+      licence: ["MIT"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [id: 'sample1', single_end: false]
+  - bam:
+      type: file
+      description: |
+        BAM file with reads aligned to the assembly. Reads should be aligned using
+        a standard aligner (e.g., BWA, Bowtie2) with default parameters.
+      pattern: "*.bam"
+  - bai:
+      type: file
+      description: BAM index file (.bai) - required for efficient access
+      pattern: "*.bam.bai"
+  - fasta:
+      type: file
+      description: |
+        Assembly FASTA file containing contigs/scaffolds. This is the assembly that
+        was used as reference for read alignment in the BAM file.
+      pattern: "*.{fasta,fa,fna}"
+
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [id: 'sample1', single_end: false]
+  - features:
+      type: file
+      description: |
+        Tuple containing two files:
+        1. *_feature_file_paths.tsv: TSV file with paths to individual feature files
+        2. *_feats.tsv: TSV file with extracted feature vectors for each contig
+      pattern: "*_{feature_file_paths,feats}.tsv"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@your_github_username"
+maintainers:
+  - "@your_github_username"
+
+notes:
+  - |
+    The BAM file must be indexed (.bai file must exist) before running this process.
+  - |
+    Reads in the BAM file must be aligned to the same assembly provided in the FASTA file.
+  - |
+    The process generates multiple feature types including:
+      - Coverage statistics (mean, variance, distribution)
+      - Read mapping quality
+      - Mate pair insert size and orientation
+      - Soft-clipped bases
+      - Mismatches and indels
+      - Assembly characteristics (GC content, length, etc.)
+  - |
+    The output features are used as input for the deepmased/predict module.

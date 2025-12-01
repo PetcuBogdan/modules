@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "deepmased"
+description: |
+  Deep learning for Metagenome Assembly Error Detection (DeepMAsED).
+  
+  ⚠️ DEPRECATION NOTICE:
+  This combined process has been split into modular components for better resource optimization.
+  Consider using the individual processes instead:
+    - deepmased/features: Extract features from BAM and FASTA files
+    - deepmased/predict: Predict misassemblies from extracted features
+  
+  This wrapper process still works but shows a deprecation warning.
+  For better control and flexibility, use the modular subprocesses.
+
+keywords:
+  - metagenomics
+  - assembly
+  - quality control
+  - misassembly
+  - deep learning
+  - error detection
+
+tools:
+  - deepmased:
+      description: |
+        Deep learning for Metagenome Assembly Error Detection. Uses convolutional neural 
+        networks to identify misassemblies in metagenomic assemblies by analyzing read 
+        mapping features.
+      homepage: https://github.com/leylabmpi/DeepMAsED
+      documentation: https://github.com/leylabmpi/DeepMAsED/blob/master/README.md
+      doi: "10.1093/bioinformatics/btaa124"
+      licence: ["MIT"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [id: 'sample1', single_end: false]
+  - bam:
+      type: file
+      description: BAM file with reads aligned to the assembly
+      pattern: "*.bam"
+  - bai:
+      type: file
+      description: BAM index file
+      pattern: "*.bam.bai"
+  - fasta:
+      type: file
+      description: Assembly FASTA file
+      pattern: "*.{fasta,fa,fna}"
+
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [id: 'sample1', single_end: false]
+  - predictions:
+      type: file
+      description: TSV file with misassembly predictions for each contig
+      pattern: "*_predictions.tsv"
+  - feature_paths:
+      type: file
+      description: TSV file containing paths to generated feature files
+      pattern: "*_feature_file_paths.tsv"
+  - features:
+      type: file
+      description: TSV file with extracted features from BAM and FASTA
+      pattern: "*_feats.tsv"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@your_github_username"
+maintainers:
+  - "@your_github_username"

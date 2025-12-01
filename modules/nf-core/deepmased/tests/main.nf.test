@@ -1,0 +1,43 @@
+nextflow_process {
+
+    name "Test Process DEEPMASED"
+    script "../main.nf"
+    process "DEEPMASED"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "deepmased"
+
+    test("single_sample") {
+        
+        config './nextflow.config'
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'sample1' ],
+                         [ id:'test' ],
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam.bai', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/genome.fasta', checkIfExists: true)
+                    ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                {
+                    assert snapshot(
+                        process.out.feature_paths.collect { file(it[1]).getName() },
+                        process.out.features.collect { file(it[1]).getName() },
+                        process.out.predictions.collect { file(it[1]).getName() },
+                        process.out.versions
+                    ).match()
+                }
+            )
+        }
+    }
+}
